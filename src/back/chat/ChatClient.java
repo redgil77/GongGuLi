@@ -158,33 +158,32 @@ public class ChatClient extends JFrame implements Runnable {
                 }
             }
         });
-
+        
         participantsscrollPane = new JScrollPane(participantsList);
 
         participantsFrame.add(participantsscrollPane, BorderLayout.CENTER);
-
+        
         participantsFrame.setVisible(true);
     }
 
     //클라이언트 시작 함수
     private void startClient(String name) {
         try {
-            socket = new Socket("43.200.49.16", 8888);
-
+            socket = new Socket("localhost", 1084);
+            //43.200.49.16
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
 
             out.println(name);
             out.flush();
+
+            Thread t = new Thread(this);
+            t.start();
         } catch (IOException e) {
             chatTextArea.append("[서버 통신 오류]");
-            e.printStackTrace();
         }
-
-        Thread t = new Thread(this);
-        t.start();
     }
-
+    
     //사용자를 강퇴 시키는 함수
     private void kickoutUser(String target_name) {
         out.println("KICKNAME:" + target_name);
@@ -215,7 +214,7 @@ public class ChatClient extends JFrame implements Runnable {
                         }
                     } else if (message.contains("MASTER:")) {
                         message = message.replace("MASTER:", "");
-
+                        
                         if (message.equals(name)) {
                             master = true;
                             name = name + "(방장)";
@@ -236,7 +235,7 @@ public class ChatClient extends JFrame implements Runnable {
     //메세지를 서버로 전송하는 함수
     private void sendMessage() {
         String message = tf.getText();
-
+                
         if (message.contains("USERCOUNT:") || message.contains("USERNAME:") || message.contains("KICKNAME:") || message.contains("MASTER:")) {
             chatTextArea.append("허용되지 않은 명령어입니다.\n");
             tf.setText("");
